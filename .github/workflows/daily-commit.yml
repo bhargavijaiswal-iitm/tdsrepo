@@ -2,17 +2,18 @@ name: Daily Commit Workflow
 
 on:
   schedule:
-    - cron: '30 6 * * *'
-  workflow_dispatch:
+    - cron: '30 6 * * *'  # Runs daily at 6:30 AM UTC (12:00 PM IST)
+  workflow_dispatch:        # Allows manual triggering
 
 jobs:
   commit-job:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write  
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout the repository
+      uses: actions/checkout@v3
 
     - name: Set up Git (23f3002094@ds.study.iitm.ac.in)
       run: |
@@ -20,14 +21,17 @@ jobs:
         git config --global user.email "23f3002094@ds.study.iitm.ac.in"
 
     - name: Make a dummy change
-      run: echo "Last run: $(date)" > last_run.txt
-
-    - name: Commit and Push Changes
       run: |
-        set -e
+        echo "Last run: $(date -u)" > last_run.txt
+
+    - name: Debug Git and Push
+      run: |
+        set -eux  # Fail fast and show all output
+        git remote -v
+        git status
         git add last_run.txt
-        git commit -m "Automated daily commit"
+        git commit -m "Automated daily commit" || echo "Nothing to commit"
         git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-        git push
+        git push origin HEAD:main
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
