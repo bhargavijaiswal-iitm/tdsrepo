@@ -2,32 +2,32 @@ name: Daily Commit Workflow
 
 on:
   schedule:
-    # Runs every day at 06:15 AM UTC (adjust as needed)
-    - cron: '15 6 * * *'
-  workflow_dispatch:  # allows manual run
+    - cron: '30 6 * * *'
+  workflow_dispatch:
 
 jobs:
   commit-job:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
-    - name: Checkout the repository
-      uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
-    - name: Set up Git with your email 23f3002094@ds.study.iitm.ac.in
+    - name: Set up Git (23f3002094@ds.study.iitm.ac.in)
       run: |
         git config --global user.name "GitHub Action Bot"
         git config --global user.email "23f3002094@ds.study.iitm.ac.in"
 
     - name: Make a dummy change
-      run: |
-        echo "Last run: $(date)" > last_run.txt
+      run: echo "Last run: $(date)" > last_run.txt
 
-    - name: Commit and push changes
+    - name: Commit and Push Changes
       run: |
+        set -e
         git add last_run.txt
         git commit -m "Automated daily commit"
+        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
         git push
       env:
-        # Use GitHub token for authentication
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
