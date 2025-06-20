@@ -1,32 +1,33 @@
-name: DevSync Daily Repository Update
+name: Daily Commit Workflow
 
 on:
   schedule:
-    - cron: '30 7 * * *'  # Runs daily at 7:30 AM UTC
-  workflow_dispatch:
+    # Runs every day at 06:15 AM UTC (adjust as needed)
+    - cron: '15 6 * * *'
+  workflow_dispatch:  # allows manual run
 
 jobs:
-  daily-repository-update:
+  commit-job:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository - 23f3002094@ds.study.iitm.ac.in
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
+    - name: Checkout the repository
+      uses: actions/checkout@v3
 
-      - name: Update repository with daily timestamp
-        run: |
-          # Create or update the devsync-daily-log.txt file
-          echo "DevSync Daily Update - $(date +"%Y-%m-%d %H:%M:%S %Z")" >> devsync-daily-log.txt
-          echo "Automated commit as part of DevSync's daily repository maintenance" >> devsync-daily-log.txt
-          
-          # Configure git
-          git config user.name "DevSync Automation Bot"
-          git config user.email "devsync-automation@devsync-solutions.com"
-          
-          # Add, commit, and push changes
-          git add devsync-daily-log.txt
-          git commit -m "DevSync Automated Daily Update - $(date +"%Y-%m-%d")" || echo "No changes to commit"
-          git push origin HEAD:${{ github.ref_name }}
+    - name: Set up Git with your email 23f3002094@ds.study.iitm.ac.in
+      run: |
+        git config --global user.name "GitHub Action Bot"
+        git config --global user.email "23f3002094@ds.study.iitm.ac.in"
+
+    - name: Make a dummy change
+      run: |
+        echo "Last run: $(date)" > last_run.txt
+
+    - name: Commit and push changes
+      run: |
+        git add last_run.txt
+        git commit -m "Automated daily commit"
+        git push
+      env:
+        # Use GitHub token for authentication
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
